@@ -165,6 +165,8 @@ struct Config {
     certs_verification: bool,
     #[cfg(feature = "__tls")]
     tls_sni: bool,
+    #[cfg(feature = "__tls")]
+    tls_sslkeylogfile: bool,
     connect_timeout: Option<Duration>,
     connection_verbose: bool,
     pool_idle_timeout: Option<Duration>,
@@ -292,6 +294,8 @@ impl ClientBuilder {
                 certs_verification: true,
                 #[cfg(feature = "__tls")]
                 tls_sni: true,
+                #[cfg(feature = "__tls")]
+                tls_sslkeylogfile: false,
                 connect_timeout: None,
                 connection_verbose: false,
                 pool_idle_timeout: Some(Duration::from_secs(90)),
@@ -813,6 +817,10 @@ impl ClientBuilder {
                     };
 
                     tls.enable_sni = config.tls_sni;
+
+                    if config.tls_sslkeylogfile {
+                        tls.key_log = Arc::new(rustls::KeyLogFile::new());
+                    }
 
                     // ALPN protocol
                     match config.http_version_pref {
@@ -1982,6 +1990,13 @@ impl ClientBuilder {
         self
     }
 
+    #[cfg(feature = "__tls")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "rustls")))]
+    pub fn tls_sslkeylogfile(mut self, on: bool) -> ClientBuilder {
+        self.config.tls_sslkeylogfile = on;
+        self
+    }
+
     /// Controls the use of TLS server name indication.
     ///
     /// Defaults to `true`.
@@ -2811,6 +2826,8 @@ impl Config {
             }
 
             f.field("tls_sni", &self.tls_sni);
+
+            f.field("tls_sslkeylogfile", &self.tls_sslkeylogfile);
 
             f.field("tls_info", &self.tls_info);
         }
