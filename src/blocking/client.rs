@@ -942,6 +942,12 @@ impl ClientBuilder {
         self.with_inner(|inner| inner.tls_sni(tls_sni))
     }
 
+    #[cfg(feature = "__tls")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "rustls")))]
+    pub fn tls_sslkeylogfile(self, on: bool) -> ClientBuilder {
+        self.with_inner(|inner| inner.tls_sslkeylogfile(on))
+    }
+
     /// Set the minimum required TLS version for connections.
     ///
     /// By default, the TLS backend's own default is used.
