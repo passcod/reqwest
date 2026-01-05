@@ -854,9 +854,12 @@ impl ClientBuilder {
                     {
                         tls.enable_early_data = config.tls_enable_early_data;
 
+                        let mut h3_tls = tls.clone();
+                        h3_tls.alpn_protocols = vec!["h3".into()];
+
                         h3_connector = build_h3_connector(
                             resolver.clone(),
-                            tls.clone(),
+                            h3_tls,
                             config.quic_max_idle_timeout,
                             config.quic_stream_receive_window,
                             config.quic_receive_window,
